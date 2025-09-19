@@ -2,4 +2,4 @@
 
 Пример для запуска
 
-> `go run main.go -p ~/projects/hgraber/hgraber-next > out.json`
+> `go run main.go -p ~/projects/hgraber/hgraber-next`

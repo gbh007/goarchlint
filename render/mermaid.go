@@ -7,7 +7,7 @@ import (
 	"github.com/gbh007/goarchlint/model"
 )
 
-func RenderMermaidScheme(w io.Writer, pkgInfos []model.Package, onlyInner bool) error {
+func RenderMermaidScheme(w io.Writer, pkgInfos []model.Package, onlyInner, preferInnerNames bool) error {
 	_, err := io.WriteString(w, "```mermaid\nerDiagram\n")
 	if err != nil {
 		return fmt.Errorf("write header: %w", err)
@@ -23,7 +23,17 @@ func RenderMermaidScheme(w io.Writer, pkgInfos []model.Package, onlyInner bool) 
 				continue
 			}
 
-			_, err = fmt.Fprintf(w, "    \"%s\" ||--|{ \"%s\" : x%d\n", pkg.RelativePath, imp.RelativePath, len(imp.Files))
+			from := pkg.RelativePath
+			if preferInnerNames && pkg.InnerPath != "" {
+				from = pkg.InnerPath
+			}
+
+			to := imp.RelativePath
+			if preferInnerNames && imp.InnerPath != "" {
+				to = imp.InnerPath
+			}
+
+			_, err = fmt.Fprintf(w, "    \"%s\" ||--|{ \"%s\" : x%d\n", from, to, len(imp.Files))
 			if err != nil {
 				return fmt.Errorf("write line: %w", err)
 			}
