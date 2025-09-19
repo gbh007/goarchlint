@@ -11,9 +11,11 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/gbh007/goarchlint/model"
+	"github.com/gbh007/goarchlint/render"
 	"golang.org/x/mod/modfile"
 	"golang.org/x/tools/go/packages"
 )
@@ -22,7 +24,12 @@ func main() {
 	projectPath := flag.String("p", ".", "path to project")
 	flag.Parse()
 
-	modFilename := *projectPath + "/go.mod"
+	pPath, err := filepath.Abs(*projectPath)
+	if err != nil {
+		panic(err)
+	}
+
+	modFilename := pPath + "/go.mod"
 
 	modFile, err := os.Open(modFilename)
 	if err != nil {
@@ -54,7 +61,16 @@ func main() {
 		deps[module.Mod.Path] = struct{}{}
 	}
 
-	isInner := func(p string) bool {
+	isInnerPath := func(p string) bool {
+		_, ok := deps[p]
+		if ok {
+			return false
+		}
+
+		return strings.HasPrefix(p, pPath)
+	}
+
+	isInnerPkg := func(p string) bool {
 		_, ok := deps[p]
 		if ok {
 			return false
@@ -65,7 +81,7 @@ func main() {
 
 	dirs := []string{}
 
-	err = filepath.WalkDir(*projectPath, func(p string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(pPath, func(p string, d fs.DirEntry, err error) error {
 		if d != nil && d.Name() == ".git" {
 			return filepath.SkipDir
 		}
@@ -83,7 +99,7 @@ func main() {
 	pkgs, err := packages.Load(&packages.Config{
 		Mode:  packages.LoadImports,
 		Tests: true,
-		Dir:   *projectPath,
+		Dir:   pPath,
 	}, dirs...)
 	if err != nil {
 		panic(err)
@@ -104,7 +120,11 @@ func main() {
 
 			pkgInfo := model.Package{
 				RelativePath: pkgPath,
-				Inner:        isInner(pkgPath),
+				Inner:        isInnerPath(pkgPath),
+			}
+
+			if pkgInfo.Inner {
+				pkgInfo.RelativePath = strings.ReplaceAll(pkgInfo.RelativePath, pPath, coreModulePath)
 			}
 
 			if f.Name != nil {
@@ -131,6 +151,7 @@ func main() {
 				importInfo := model.Import{
 					RelativePath: importPath,
 					Files:        []model.File{fileInfo},
+					Inner:        isInnerPkg(importPath),
 				}
 
 				pkgInfo.Imports = append(pkgInfo.Imports, importInfo)
@@ -142,6 +163,20 @@ func main() {
 
 	pkgInfos = model.CompactPackages(pkgInfos)
 
+	slices.SortFunc(pkgInfos, func(a, b model.Package) int {
+		return strings.Compare(a.RelativePath, b.RelativePath)
+	})
+
 	data, _ := json.MarshalIndent(pkgInfos, "", "  ")
 	fmt.Println(string(data))
+
+	outMD, _ := os.Create("out.md")
+	defer outMD.Close()
+
+	_ = render.RenderMermaidScheme(outMD, pkgInfos, true)
+
+	outPuml, _ := os.Create("out.puml")
+	defer outPuml.Close()
+
+	_ = render.RenderPlantUMLScheme(outPuml, pkgInfos, true)
 }
