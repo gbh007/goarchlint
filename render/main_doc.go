@@ -11,6 +11,11 @@ import (
 )
 
 func (r Render) RenderMainDoc(name string, pkgs []model.Package) error {
+	err := r.checkAndCreateDir(r.BasePath)
+	if err != nil {
+		return fmt.Errorf("create dir: %w", err)
+	}
+
 	f, err := os.Create(path.Join(r.BasePath, "README.md"))
 	if err != nil {
 		return fmt.Errorf("create file: %w", err)
@@ -121,6 +126,11 @@ func (r Render) RenderMainDoc(name string, pkgs []model.Package) error {
 		if err != nil {
 			return fmt.Errorf("write scheme footer: %w", err)
 		}
+	}
+
+	err = r.renderFileFooter(f)
+	if err != nil {
+		return fmt.Errorf("write file footer: %w", err)
 	}
 
 	return nil

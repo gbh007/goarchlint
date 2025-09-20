@@ -103,6 +103,11 @@ func Parse(projectPath string) ([]model.Package, error) {
 
 	for _, pkg := range pkgs {
 		for _, filename := range pkg.GoFiles {
+			// Отсекаем не файлы проекта, например .cache/go-build
+			if !strings.HasPrefix(filename, pPath) {
+				continue
+			}
+
 			fset := token.NewFileSet()
 			f, err := parser.ParseFile(fset, filename, nil, parser.ImportsOnly)
 			if err != nil {

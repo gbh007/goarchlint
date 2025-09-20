@@ -102,5 +102,10 @@ func (r Render) RenderPackageDoc(pkg model.Package, pkgs []model.Package) error 
 		}
 	}
 
+	err = r.renderFileFooter(f)
+	if err != nil {
+		return fmt.Errorf("write file footer: %w", err)
+	}
+
 	return nil
 }

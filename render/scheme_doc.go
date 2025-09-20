@@ -11,7 +11,7 @@ import (
 
 func (r Render) RenderSchemeDoc(pkgs []model.Package) error {
 	rCopy := r
-	rCopy.MarkdownMode = true
+	rCopy.MarkdownMode = false
 	rCopy.Format = rCopy.SchemeFileFormat
 
 	var filename string
