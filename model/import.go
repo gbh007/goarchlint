@@ -1,10 +1,18 @@
 package model
 
+import "slices"
+
 type Import struct {
 	Inner        bool   `json:"inner,omitempty"`
 	RelativePath string `json:"relative_path,omitempty"`
 	InnerPath    string `json:"inner_path,omitempty"`
 	Files        []File `json:"files,omitempty"`
+}
+
+func (i Import) Clone() Import {
+	i.Files = slices.Clone(i.Files)
+
+	return i
 }
 
 func CompactImports(s ...[]Import) []Import {

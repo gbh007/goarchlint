@@ -1,9 +1,10 @@
 package render
 
 import (
-	"errors"
 	"fmt"
-	"io"
+	"path"
+	"path/filepath"
+	"strings"
 
 	"github.com/gbh007/goarchlint/model"
 )
@@ -11,7 +12,7 @@ import (
 type Format byte
 
 const (
-	FormatUnknown Format = iota
+	FormatNone Format = iota
 	FormatMermaid
 	FormatPlantUML
 )
@@ -21,43 +22,47 @@ type Render struct {
 	PreferInnerNames bool
 	MarkdownMode     bool
 	Format           Format
+	BasePath         string
+	SchemeFileFormat Format
 }
 
-func (r Render) Render(w io.Writer, pkgInfos []model.Package) error {
-	var (
-		renderFunc func(w io.Writer, pkgInfos []model.Package) error
-		mdType     string
-	)
-
-	switch r.Format {
-	case FormatMermaid:
-		renderFunc = r.renderMermaidScheme
-		mdType = "mermaid"
-	case FormatPlantUML:
-		renderFunc = r.renderPlantUMLScheme
-		mdType = "plantuml"
-	default:
-		return errors.New("unsupported format")
+func (r Render) getPackagePath(p model.Package) string {
+	s := p.RelativePath
+	if r.PreferInnerNames {
+		s = p.InnerPath
 	}
 
-	if r.MarkdownMode {
-		_, err := io.WriteString(w, "```"+mdType+"\n")
-		if err != nil {
-			return fmt.Errorf("write code block header: %w", err)
-		}
+	s, f := path.Split(s)
+	s = strings.Trim(s, "/")
+
+	return path.Join(s, f+".md")
+}
+
+func (r Render) getImportPath(p model.Import) string {
+	s := p.RelativePath
+	if r.PreferInnerNames {
+		s = p.InnerPath
 	}
 
-	err := renderFunc(w, pkgInfos)
+	s, f := path.Split(s)
+	s = strings.Trim(s, "/")
+
+	return path.Join(s, f+".md")
+}
+
+func (Render) resolvePath(current, target string) string {
+	s, err := filepath.Rel(current, target)
 	if err != nil {
-		return fmt.Errorf("render: %w", err)
+		panic(err)
 	}
 
-	if r.MarkdownMode {
-		_, err := io.WriteString(w, "```")
-		if err != nil {
-			return fmt.Errorf("write code block footer: %w", err)
-		}
+	return s
+}
+
+func (Render) mdLink(name, uri string) string {
+	if uri == ".md" { // FIXME: избавится от этого костыля
+		return name
 	}
 
-	return nil
+	return fmt.Sprintf("[%s](%s)", name, uri)
 }

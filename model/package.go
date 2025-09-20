@@ -34,3 +34,19 @@ func CompactPackages(s ...[]Package) []Package {
 
 	return result
 }
+
+func FilterPackageByImport(pkgs []Package, p string) []Package {
+	result := make([]Package, 0, len(pkgs))
+
+	for _, pkg := range pkgs {
+		for _, imp := range pkg.Imports {
+			if imp.RelativePath == p {
+				result = append(result, pkg)
+
+				break
+			}
+		}
+	}
+
+	return result
+}

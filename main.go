@@ -18,7 +18,7 @@ func main() {
 		panic(err)
 	}
 
-	outJSON, _ := os.Create("out.json")
+	outJSON, _ := os.Create("out/out.json")
 	defer outJSON.Close()
 
 	enc := json.NewEncoder(outJSON)
@@ -29,35 +29,54 @@ func main() {
 		panic(err)
 	}
 
-	outMD, err := os.Create("out.mmd")
+	outMMD, err := os.Create("out/out.mmd")
 	if err != nil {
 		panic(err)
 	}
 
-	defer outMD.Close()
+	defer outMMD.Close()
 
 	r := render.Render{
 		OnlyInner:        true,
 		PreferInnerNames: true,
 		MarkdownMode:     false,
 		Format:           render.FormatMermaid,
+		BasePath:         "out",
+		SchemeFileFormat: render.FormatPlantUML,
 	}
 
-	err = r.Render(outMD, pkgInfos)
+	err = r.RenderScheme(outMMD, pkgInfos)
+	if err != nil {
+		panic(err)
+	}
+
+	err = r.RenderMainDoc("TEST", pkgInfos)
 	if err != nil {
 		panic(err)
 	}
 
 	r.Format = render.FormatPlantUML
 
-	outPuml, err := os.Create("out.puml")
+	outPuml, err := os.Create("out/out.puml")
 	if err != nil {
 		panic(err)
 	}
 
 	defer outPuml.Close()
 
-	err = r.Render(outPuml, pkgInfos)
+	err = r.RenderScheme(outPuml, pkgInfos)
+	if err != nil {
+		panic(err)
+	}
+
+	outMD, err := os.Create("out/out.md")
+	if err != nil {
+		panic(err)
+	}
+
+	defer outMD.Close()
+
+	err = r.RenderPackageTable(outMD, pkgInfos, render.PackageConfig{})
 	if err != nil {
 		panic(err)
 	}
