@@ -38,6 +38,10 @@ func (r Render) getPackagePath(p model.Package) string {
 	s, f := path.Split(s)
 	s = strings.Trim(s, "/")
 
+	if f == "" && p.IsMain { // FIXME: избавится от этого костыля
+		f = "main"
+	}
+
 	return path.Join(s, f+".md")
 }
 

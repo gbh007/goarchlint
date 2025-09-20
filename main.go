@@ -9,6 +9,8 @@ import (
 
 func main() {
 	projectPath := flag.String("p", ".", "path to project")
+	outPath := flag.String("out", "out", "path to doc output")
+	dumpJSON := flag.Bool("dump-json", false, "dump json")
 	flag.Parse()
 
 	pkgInfos, err := parser.Parse(*projectPath)
@@ -21,7 +23,7 @@ func main() {
 		PreferInnerNames: true,
 		MarkdownMode:     false,
 		Format:           render.FormatMermaid,
-		BasePath:         "out",
+		BasePath:         *outPath,
 		SchemeFileFormat: render.FormatPlantUML,
 	}
 
@@ -30,8 +32,10 @@ func main() {
 		panic(err)
 	}
 
-	err = r.DumpJSON(pkgInfos)
-	if err != nil {
-		panic(err)
+	if *dumpJSON {
+		err = r.DumpJSON(pkgInfos)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
