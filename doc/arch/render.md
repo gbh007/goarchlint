@@ -21,15 +21,15 @@
 
 ## Used by
 
-|    Name    |     Path     |
-|:----------:|:------------:|
-| goarchlint | [/](main.md) |
+|    Name    |                 Path                 |
+|:----------:|:------------------------------------:|
+| goarchlint | [/cmd/goarchlint](cmd/goarchlint.md) |
 
 ## Scheme
 
 ```mermaid
 erDiagram
-    "/" ||--|{ "/render" : x1
+    "/cmd/goarchlint" ||--|{ "/render" : x1
     "/render" ||--|{ "/model" : x11
 ```
 

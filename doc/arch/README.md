@@ -2,37 +2,37 @@
 
 ## Main packages
 
-|    Name    |     Path     |
-|:----------:|:------------:|
-| goarchlint | [/](main.md) |
+|    Name    |                 Path                 |
+|:----------:|:------------------------------------:|
+| goarchlint | [/cmd/goarchlint](cmd/goarchlint.md) |
 
 ## Inner packages
 
-|    Name    |         Path         |
-|:----------:|:--------------------:|
-| goarchlint |     [/](main.md)     |
-|   model    |  [/model](model.md)  |
-|   parser   | [/parser](parser.md) |
-|   render   | [/render](render.md) |
+|    Name    |                 Path                 |
+|:----------:|:------------------------------------:|
+| goarchlint | [/cmd/goarchlint](cmd/goarchlint.md) |
+|   model    |          [/model](model.md)          |
+|   parser   |         [/parser](parser.md)         |
+|   render   |         [/render](render.md)         |
 
 ## External imports
 
 |    Name     |                    Path                    | Count |
 |:-----------:|:------------------------------------------:|:-----:|
-|     fmt     |                    fmt                     |  13   |
+|     fmt     |                    fmt                     |  14   |
 |     io      |                     io                     |   9   |
+|     os      |                     os                     |   8   |
 |    path     |                    path                    |   8   |
-|     os      |                     os                     |   7   |
 |   slices    |                   slices                   |   5   |
+|   errors    |                   errors                   |   4   |
 |   strings   |                  strings                   |   4   |
-|   errors    |                   errors                   |   3   |
 |  filepath   |               path/filepath                |   3   |
 | tablewriter |     github.com/olekukonko/tablewriter      |   2   |
 |  renderer   | github.com/olekukonko/tablewriter/renderer |   2   |
 |     tw      |    github.com/olekukonko/tablewriter/tw    |   2   |
 |     fs      |                   io/fs                    |   2   |
 |    json     |               encoding/json                |   1   |
-|    flag     |                    flag                    |   1   |
+|    cobra    |           github.com/spf13/cobra           |   1   |
 |   parser    |                 go/parser                  |   1   |
 |    token    |                  go/token                  |   1   |
 |   modfile   |          golang.org/x/mod/modfile          |   1   |
@@ -42,8 +42,8 @@
 
 ```mermaid
 erDiagram
-    "/" ||--|{ "/parser" : x1
-    "/" ||--|{ "/render" : x1
+    "/cmd/goarchlint" ||--|{ "/parser" : x1
+    "/cmd/goarchlint" ||--|{ "/render" : x1
     "/parser" ||--|{ "/model" : x1
     "/render" ||--|{ "/model" : x11
 ```
