@@ -29,17 +29,26 @@ func main() {
 		panic(err)
 	}
 
-	outMD, err := os.Create("out.md")
+	outMD, err := os.Create("out.mmd")
 	if err != nil {
 		panic(err)
 	}
 
 	defer outMD.Close()
 
-	err = render.RenderMermaidScheme(outMD, pkgInfos, true, true)
+	r := render.Render{
+		OnlyInner:        true,
+		PreferInnerNames: true,
+		MarkdownMode:     false,
+		Format:           render.FormatMermaid,
+	}
+
+	err = r.Render(outMD, pkgInfos)
 	if err != nil {
 		panic(err)
 	}
+
+	r.Format = render.FormatPlantUML
 
 	outPuml, err := os.Create("out.puml")
 	if err != nil {
@@ -48,7 +57,7 @@ func main() {
 
 	defer outPuml.Close()
 
-	err = render.RenderPlantUMLScheme(outPuml, pkgInfos, true, true)
+	err = r.Render(outPuml, pkgInfos)
 	if err != nil {
 		panic(err)
 	}

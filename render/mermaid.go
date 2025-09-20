@@ -7,29 +7,29 @@ import (
 	"github.com/gbh007/goarchlint/model"
 )
 
-func RenderMermaidScheme(w io.Writer, pkgInfos []model.Package, onlyInner, preferInnerNames bool) error {
-	_, err := io.WriteString(w, "```mermaid\nerDiagram\n")
+func (r Render) renderMermaidScheme(w io.Writer, pkgInfos []model.Package) error {
+	_, err := io.WriteString(w, "erDiagram\n")
 	if err != nil {
 		return fmt.Errorf("write header: %w", err)
 	}
 
 	for _, pkg := range pkgInfos {
-		if onlyInner && !pkg.Inner {
+		if r.OnlyInner && !pkg.Inner {
 			continue
 		}
 
 		for _, imp := range pkg.Imports {
-			if onlyInner && !imp.Inner {
+			if r.OnlyInner && !imp.Inner {
 				continue
 			}
 
 			from := pkg.RelativePath
-			if preferInnerNames && pkg.InnerPath != "" {
+			if r.PreferInnerNames && pkg.InnerPath != "" {
 				from = pkg.InnerPath
 			}
 
 			to := imp.RelativePath
-			if preferInnerNames && imp.InnerPath != "" {
+			if r.PreferInnerNames && imp.InnerPath != "" {
 				to = imp.InnerPath
 			}
 
@@ -38,11 +38,6 @@ func RenderMermaidScheme(w io.Writer, pkgInfos []model.Package, onlyInner, prefe
 				return fmt.Errorf("write line: %w", err)
 			}
 		}
-	}
-
-	_, err = io.WriteString(w, "```")
-	if err != nil {
-		return fmt.Errorf("write footer: %w", err)
 	}
 
 	return nil

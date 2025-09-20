@@ -7,33 +7,33 @@ import (
 	"github.com/gbh007/goarchlint/model"
 )
 
-func RenderPlantUMLScheme(w io.Writer, pkgInfos []model.Package, onlyInner, preferInnerNames bool) error {
-	_, err := io.WriteString(w, "@startuml \"goarchlint\"\n")
+func (r Render) renderPlantUMLScheme(w io.Writer, pkgInfos []model.Package) error {
+	_, err := io.WriteString(w, "@startuml \"goarchlint\"\nskinparam componentStyle rectangle\n")
 	if err != nil {
 		return fmt.Errorf("write header: %w", err)
 	}
 
 	for _, pkg := range pkgInfos {
-		if onlyInner && !pkg.Inner {
+		if r.OnlyInner && !pkg.Inner {
 			continue
 		}
 
 		for _, imp := range pkg.Imports {
-			if onlyInner && !imp.Inner {
+			if r.OnlyInner && !imp.Inner {
 				continue
 			}
 
 			from := pkg.RelativePath
-			if preferInnerNames && pkg.InnerPath != "" {
+			if r.PreferInnerNames && pkg.InnerPath != "" {
 				from = pkg.InnerPath
 			}
 
 			to := imp.RelativePath
-			if preferInnerNames && imp.InnerPath != "" {
+			if r.PreferInnerNames && imp.InnerPath != "" {
 				to = imp.InnerPath
 			}
 
-			_, err = fmt.Fprintf(w, "\"%s\" }|--|| \"%s\" : x%d\n", from, to, len(imp.Files))
+			_, err = fmt.Fprintf(w, "[%s] --> [%s]\n", from, to)
 			if err != nil {
 				return fmt.Errorf("write line: %w", err)
 			}
