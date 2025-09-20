@@ -1,7 +1,9 @@
 package render
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -56,13 +58,33 @@ func (Render) resolvePath(current, target string) string {
 		panic(err)
 	}
 
+	s = strings.TrimPrefix(s, "../") // FIXME: избавится от этого костыля
+
 	return s
 }
 
 func (Render) mdLink(name, uri string) string {
-	if uri == ".md" { // FIXME: избавится от этого костыля
+	if path.Base(uri) == ".md" { // FIXME: избавится от этого костыля
 		return name
 	}
 
 	return fmt.Sprintf("[%s](%s)", name, uri)
+}
+
+func (Render) checkAndCreateDir(dirPath string) error {
+	info, err := os.Stat(dirPath)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return fmt.Errorf("os stat: %w", err)
+	}
+
+	if info != nil && !info.IsDir() {
+		return errors.New("dir path is not dir")
+	}
+
+	err = os.MkdirAll(dirPath, os.ModeDir|os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("mkdir: %w", err)
+	}
+
+	return nil
 }

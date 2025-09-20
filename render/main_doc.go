@@ -16,16 +16,41 @@ func (r Render) RenderMainDoc(name string, pkgs []model.Package) error {
 		return fmt.Errorf("create file: %w", err)
 	}
 
+	defer f.Close()
+
 	_, err = io.WriteString(f, "# "+name+"\n\n")
 	if err != nil {
 		return fmt.Errorf("write h1: %w", err)
 	}
 
-	innerPackages := []model.Package{}
+	var innerPackages, mainPackages []model.Package
 
 	for _, pkg := range pkgs {
-		if pkg.Inner {
-			innerPackages = append(innerPackages, pkg)
+		if !pkg.Inner {
+			continue
+		}
+
+		innerPackages = append(innerPackages, pkg)
+
+		if pkg.IsMain {
+			mainPackages = append(mainPackages, pkg)
+		}
+	}
+
+	if len(mainPackages) > 0 {
+		_, err = io.WriteString(f, "## Main packages\n\n")
+		if err != nil {
+			return fmt.Errorf("write main packages header: %w", err)
+		}
+
+		err = r.RenderPackageTable(f, mainPackages, PackageConfig{})
+		if err != nil {
+			return fmt.Errorf("write main packages table: %w", err)
+		}
+
+		_, err = io.WriteString(f, "\n")
+		if err != nil {
+			return fmt.Errorf("write main packages footer: %w", err)
 		}
 	}
 

@@ -35,13 +35,16 @@ func CompactPackages(s ...[]Package) []Package {
 	return result
 }
 
-func FilterPackageByImport(pkgs []Package, p string) []Package {
+func FilterAndCleanPackageByImport(pkgs []Package, p string) []Package {
 	result := make([]Package, 0, len(pkgs))
 
 	for _, pkg := range pkgs {
 		for _, imp := range pkg.Imports {
 			if imp.RelativePath == p {
-				result = append(result, pkg)
+				pkgClone := pkg
+				pkgClone.Imports = []Import{imp}
+
+				result = append(result, pkgClone)
 
 				break
 			}
