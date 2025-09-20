@@ -9,7 +9,9 @@
 | parser | [/parser](../parser.md) |  ✅   |   1   |
 | render | [/render](../render.md) |  ✅   |   1   |
 | cobra  | github.com/spf13/cobra  |  ❌   |   1   |
+| viper  | github.com/spf13/viper  |  ❌   |   1   |
 |   os   |           os            |  ❌   |   1   |
+| debug  |      runtime/debug      |  ❌   |   1   |
 
 ## Scheme
 

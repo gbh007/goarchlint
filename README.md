@@ -17,3 +17,9 @@ goarchlint generate
 ```shell
 goarchlint generate -p ~/projects/hgraber/hgraber-next -o ~/projects/hgraber/hgraber-next/docs/arch
 ```
+
+Генерация файла конфигурации
+
+```shell
+goarchlint config
+```

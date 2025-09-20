@@ -20,6 +20,17 @@ const (
 	FormatPlantUML
 )
 
+func FormatFrom(s string) Format {
+	switch strings.ToLower(s) {
+	case "mermaid", "mmd":
+		return FormatMermaid
+	case "plantuml", "puml", "uml":
+		return FormatPlantUML
+	default:
+		return FormatNone
+	}
+}
+
 type Render struct {
 	OnlyInner        bool
 	PreferInnerNames bool

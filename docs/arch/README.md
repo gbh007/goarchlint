@@ -33,10 +33,12 @@
 |     fs      |                   io/fs                    |   2   |
 |    json     |               encoding/json                |   1   |
 |    cobra    |           github.com/spf13/cobra           |   1   |
+|    viper    |           github.com/spf13/viper           |   1   |
 |   parser    |                 go/parser                  |   1   |
 |    token    |                  go/token                  |   1   |
 |   modfile   |          golang.org/x/mod/modfile          |   1   |
 |  packages   |       golang.org/x/tools/go/packages       |   1   |
+|    debug    |               runtime/debug                |   1   |
 
 ## Scheme
 
