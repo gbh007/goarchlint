@@ -27,6 +27,7 @@ type Render struct {
 	Format           Format
 	BasePath         string
 	SchemeFileFormat Format
+	CleanDir         bool
 }
 
 func (r Render) getPackagePath(p model.Package) string {

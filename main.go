@@ -13,7 +13,7 @@ func main() {
 	dumpJSON := flag.Bool("dump-json", false, "dump json")
 	flag.Parse()
 
-	pkgInfos, err := parser.Parse(*projectPath)
+	pkgInfos, module, err := parser.Parse(*projectPath)
 	if err != nil {
 		panic(err)
 	}
@@ -25,9 +25,10 @@ func main() {
 		Format:           render.FormatMermaid,
 		BasePath:         *outPath,
 		SchemeFileFormat: render.FormatPlantUML,
+		CleanDir:         true,
 	}
 
-	err = r.RenderDocs("TEST", pkgInfos)
+	err = r.RenderDocs(module, pkgInfos)
 	if err != nil {
 		panic(err)
 	}

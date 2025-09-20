@@ -17,29 +17,29 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
-func Parse(projectPath string) ([]model.Package, error) {
+func Parse(projectPath string) ([]model.Package, string, error) {
 	pPath, err := filepath.Abs(projectPath)
 	if err != nil {
-		return nil, fmt.Errorf("get absolute path: %w", err)
+		return nil, "", fmt.Errorf("get absolute path: %w", err)
 	}
 
 	modFilename := pPath + "/go.mod"
 
 	modFile, err := os.Open(modFilename)
 	if err != nil {
-		return nil, fmt.Errorf("open go.mod file: %w", err)
+		return nil, "", fmt.Errorf("open go.mod file: %w", err)
 	}
 
 	defer modFile.Close()
 
 	modFileData, err := io.ReadAll(modFile)
 	if err != nil {
-		return nil, fmt.Errorf("read go.mod file: %w", err)
+		return nil, "", fmt.Errorf("read go.mod file: %w", err)
 	}
 
 	mod, err := modfile.Parse(modFilename, modFileData, nil)
 	if err != nil {
-		return nil, fmt.Errorf("parse go.mod file: %w", err)
+		return nil, "", fmt.Errorf("parse go.mod file: %w", err)
 	}
 
 	var (
@@ -87,7 +87,7 @@ func Parse(projectPath string) ([]model.Package, error) {
 		return err
 	})
 	if err != nil {
-		return nil, fmt.Errorf("walk project files: %w", err)
+		return nil, "", fmt.Errorf("walk project files: %w", err)
 	}
 
 	pkgs, err := packages.Load(&packages.Config{
@@ -96,7 +96,7 @@ func Parse(projectPath string) ([]model.Package, error) {
 		Dir:   pPath,
 	}, dirs...)
 	if err != nil {
-		return nil, fmt.Errorf("load package infos: %w", err)
+		return nil, "", fmt.Errorf("load package infos: %w", err)
 	}
 
 	pkgInfos := []model.Package{}
@@ -111,7 +111,7 @@ func Parse(projectPath string) ([]model.Package, error) {
 			fset := token.NewFileSet()
 			f, err := parser.ParseFile(fset, filename, nil, parser.ImportsOnly)
 			if err != nil {
-				return nil, fmt.Errorf("parse file %s: %w", filename, err)
+				return nil, "", fmt.Errorf("parse file %s: %w", filename, err)
 			}
 
 			pkgPath, _ := path.Split(filename)
@@ -175,9 +175,9 @@ func Parse(projectPath string) ([]model.Package, error) {
 
 	pkgInfos = model.CompactPackages(pkgInfos)
 
-	slices.SortFunc(pkgInfos, func(a, b model.Package) int {
+	slices.SortStableFunc(pkgInfos, func(a, b model.Package) int {
 		return strings.Compare(a.RelativePath, b.RelativePath)
 	})
 
-	return pkgInfos, nil
+	return pkgInfos, coreModulePath, nil
 }

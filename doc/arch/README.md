@@ -1,4 +1,4 @@
-# TEST
+# github.com/gbh007/goarchlint
 
 ## Main packages
 
@@ -19,24 +19,24 @@
 
 |    Name     |                    Path                    | Count |
 |:-----------:|:------------------------------------------:|:-----:|
-|     fmt     |                    fmt                     |  12   |
+|     fmt     |                    fmt                     |  13   |
 |     io      |                     io                     |   9   |
 |    path     |                    path                    |   8   |
-|     os      |                     os                     |   6   |
-|   slices    |                   slices                   |   4   |
+|     os      |                     os                     |   7   |
+|   slices    |                   slices                   |   5   |
+|   strings   |                  strings                   |   4   |
 |   errors    |                   errors                   |   3   |
-|  renderer   | github.com/olekukonko/tablewriter/renderer |   2   |
-|   strings   |                  strings                   |   2   |
+|  filepath   |               path/filepath                |   3   |
 | tablewriter |     github.com/olekukonko/tablewriter      |   2   |
+|  renderer   | github.com/olekukonko/tablewriter/renderer |   2   |
 |     tw      |    github.com/olekukonko/tablewriter/tw    |   2   |
-|  filepath   |               path/filepath                |   2   |
-|     fs      |                   io/fs                    |   1   |
+|     fs      |                   io/fs                    |   2   |
+|    json     |               encoding/json                |   1   |
+|    flag     |                    flag                    |   1   |
 |   parser    |                 go/parser                  |   1   |
 |    token    |                  go/token                  |   1   |
 |   modfile   |          golang.org/x/mod/modfile          |   1   |
-|    flag     |                    flag                    |   1   |
 |  packages   |       golang.org/x/tools/go/packages       |   1   |
-|    json     |               encoding/json                |   1   |
 
 ## Scheme
 

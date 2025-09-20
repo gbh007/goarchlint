@@ -7,7 +7,14 @@ import (
 )
 
 func (r Render) RenderDocs(name string, pkgs []model.Package) error {
-	err := r.RenderMainDoc("TEST", pkgs)
+	if r.CleanDir {
+		err := r.CleanDocFolder()
+		if err != nil {
+			return fmt.Errorf("clean old docs: %w", err)
+		}
+	}
+
+	err := r.RenderMainDoc(name, pkgs)
 	if err != nil {
 		return fmt.Errorf("main doc: %w", err)
 	}

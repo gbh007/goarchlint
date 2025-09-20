@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"slices"
+	"strings"
 
 	"github.com/gbh007/goarchlint/model"
 )
@@ -35,7 +36,11 @@ func (r Render) RenderPackageDoc(pkg model.Package, pkgs []model.Package) error 
 
 	if len(pkg.Imports) > 0 {
 		pkg.Imports = slices.Clone(pkg.Imports)
-		slices.SortFunc(pkg.Imports, func(a, b model.Import) int {
+		slices.SortStableFunc(pkg.Imports, func(a, b model.Import) int {
+			if len(b.Files) == len(a.Files) {
+				return strings.Compare(a.RelativePath, b.RelativePath)
+			}
+
 			return len(b.Files) - len(a.Files)
 		})
 
