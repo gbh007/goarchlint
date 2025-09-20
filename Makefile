@@ -6,7 +6,7 @@ endif
 
 .PHONY: docself
 docself:
-	go run cmd/goarchlint/main.go generate -o doc/arch
+	go run cmd/goarchlint/main.go generate
 
 .PHONY: install
 install:
