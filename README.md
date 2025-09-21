@@ -6,22 +6,28 @@
 go install github.com/gbh007/goarchlint/cmd/goarchlint@latest
 ```
 
+Генерация файла конфигурации, поддерживаются [пресеты линтера](#пресеты-генерации-конфигурации-для-линтера) через `--linter [PRESET_NAME]`
+
+```shell
+goarchlint config
+```
+
 Генерация документации в локальной директории
 
 ```shell
 goarchlint generate
 ```
 
+Валидация в локальной директории, поддерживается флаг для сокрытия сообщений уровня lax - `--silent-lax`
+
+```shell
+goarchlint run
+```
+
 Генерация документации вне локальной директории
 
 ```shell
 goarchlint generate -p ~/projects/hgraber/hgraber-next -o ~/projects/hgraber/hgraber-next/docs/arch
-```
-
-Генерация файла конфигурации
-
-```shell
-goarchlint config
 ```
 
 ## Настройка линтера
@@ -69,4 +75,99 @@ type = "lax"
 only_inner = true
 # Добавить это сообщение в информацию
 description = "use cases can depend on domain only"
+```
+
+## Пресеты генерации конфигурации для линтера
+
+### `hex`
+
+Для простых проектов со следующей структурой
+
+- `cmd/*` - команды для запуска приложения (не более чем инициализация контекста и логера), вызывают инициализацию в applications
+- `internal/applications/*` - инициализация приложений: парсинг конфигурации, создание объектов контроллеров и т.п.
+- `internal/adapters/*` - адаптеры для хранения данных и обращения ко внешним системам, например: kafka producer, http client, database
+- `internal/entities` - бизнес сущности, типы и чистые функции
+- `internal/usecases/*` - пакеты с бизнес логикой
+- `internal/controllers/*` - пакеты контроллеров, например: kafka consumer, http server, cron
+
+```mermaid
+erDiagram
+    cmd }o--o{ application: "direct import and run"
+    application }o--o{ adapter: "direct import"
+    application }o--o{ usecase: "direct import"
+    application }o--o{ controller: "direct import and run"
+    adapter }o--o{ entity: "direct usage"
+    usecase }o--o{ entity: "direct usage"
+    controller }o--o{ entity: "direct usage"
+    usecase }o..o{ adapter: "usage over interface"
+    controller }o..o{ usecase: "usage over interface"
+```
+
+### `hexlite`
+
+Для простых проектов со следующей структурой
+
+- `cmd/*` - команды для запуска приложения (не более чем инициализация контекста и логера), вызывают инициализацию в applications
+- `internal/applications/*` - инициализация приложений: парсинг конфигурации, создание объектов контроллеров и т.п.
+- `internal/repositories/*` - адаптеры для работы с базами или иными хранилищами данных, например: postgres, redis, s3
+- `internal/clients/*` - клиенты для обращения ко внешним системам, например: kafka producer, http client
+- `internal/entities` - бизнес сущности, типы и чистые функции
+- `internal/usecases/*` - пакеты с бизнес логикой
+- `internal/controllers/*` - пакеты контроллеров, например: kafka consumer, http server, cron
+
+```mermaid
+erDiagram
+    cmd }o--o{ application: "direct import and run"
+    application }o--o{ repository: "direct import"
+    application }o--o{ client: "direct import"
+    application }o--o{ usecase: "direct import"
+    application }o--o{ controller: "direct import and run"
+    repository }o--o{ entity: "direct usage"
+    client }o--o{ entity: "direct usage"
+    usecase }o--o{ entity: "direct usage"
+    controller }o--o{ entity: "direct usage"
+    usecase }o..o{ repository: "usage over interface"
+    usecase }o..o{ client: "usage over interface"
+    controller }o..o{ usecase: "usage over interface"
+```
+
+### `clean`
+
+Для сложных проектов со следующей структурой
+
+- `cmd/*` - команды для запуска приложения (не более чем инициализация контекста и логера), вызывают инициализацию в applications
+- `internal/applications/*` - инициализация приложений: парсинг конфигурации, создание объектов контроллеров и т.п.
+- `internal/repositories/*` - адаптеры для работы с базами или иными хранилищами данных, например: postgres, redis, s3
+- `internal/clients/*` - клиенты для обращения ко внешним системам, например: kafka producer, http client
+- `internal/entities/*` - бизнес сущности, типы и чистые функции
+- `internal/dto/*` - структуры для обмена данными между слоями
+- `internal/services/*` - пакеты со смешанной логикой (бизнесовая и/или техническая) или логикой что должна переиспользоваться
+- `internal/usecases/*` - пакеты с бизнес логикой
+- `internal/controllers/*` - пакеты контроллеров, например: kafka consumer, http server, cron
+
+```mermaid
+erDiagram
+    cmd }o--o{ application: "direct import and run"
+    application }o--o{ repository: "direct import"
+    application }o--o{ client: "direct import"
+    application }o--o{ service: "direct import"
+    application }o--o{ usecase: "direct import"
+    application }o--o{ controller: "direct import and run"
+    repository }o--o{ entity: "direct usage"
+    repository }o--o{ dto: "direct usage"
+    client }o--o{ entity: "direct usage"
+    client }o--o{ dto: "direct usage"
+    service }o--o{ entity: "direct usage"
+    service }o--o{ dto: "direct usage"
+    usecase }o--o{ entity: "direct usage"
+    usecase }o--o{ dto: "direct usage"
+    controller }o--o{ entity: "direct usage"
+    controller }o--o{ dto: "direct usage"
+    service }o..o{ repository: "usage over interface"
+    service }o..o{ client: "usage over interface"
+    service }o..o{ service: "usage over interface"
+    usecase }o..o{ repository: "usage over interface"
+    usecase }o..o{ client: "usage over interface"
+    usecase }o..o{ service: "usage over interface"
+    controller }o..o{ usecase: "usage over interface"
 ```

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"runtime/debug"
 
+	"github.com/gbh007/goarchlint/config"
 	"github.com/gbh007/goarchlint/linter"
 	"github.com/gbh007/goarchlint/parser"
 	"github.com/gbh007/goarchlint/render"
@@ -14,44 +14,12 @@ import (
 	"github.com/spf13/viper"
 )
 
-type Config struct {
-	Generator struct {
-		Out              string
-		OnlyInner        bool `mapstructure:"only_inner"`
-		PreferInnerNames bool `mapstructure:"prefer_inner_names"`
-		Format           string
-		SchemeFile       string `mapstructure:"scheme_file"`
-		Clean            bool
-	}
-	Linter struct {
-		Rules []LinterRule
-	}
-}
-
-type LinterRule struct {
-	Path        string
-	Allow       []string
-	Deny        []string
-	Type        string
-	OnlyInner   bool `mapstructure:"only_inner"`
-	Description string
-}
-
-func getVersion() string {
-	info, ok := debug.ReadBuildInfo()
-	if ok {
-		return info.Main.Version
-	}
-
-	return ""
-}
-
 var (
 	rootCmd = &cobra.Command{
 		Use:          "goarchlint",
 		Short:        "Go architecture linter and doc generator",
 		SilenceUsage: true,
-		Version:      getVersion(),
+		Version:      config.GetVersion(),
 	}
 	generateCmd = &cobra.Command{
 		Use:   "generate",
@@ -85,7 +53,7 @@ var (
 				return fmt.Errorf("read config: %w", err)
 			}
 
-			cfg := Config{}
+			cfg := config.Config{}
 
 			err = viper.Unmarshal(&cfg)
 			if err != nil {
@@ -149,7 +117,7 @@ var (
 				return fmt.Errorf("read config: %w", err)
 			}
 
-			cfg := Config{}
+			cfg := config.Config{}
 
 			err = viper.Unmarshal(&cfg)
 			if err != nil {
@@ -164,7 +132,7 @@ var (
 			result, err := linter.Validate(
 				os.Stdout,
 				pkgInfos,
-				lo.Map(cfg.Linter.Rules, func(v LinterRule, _ int) linter.Rule {
+				lo.Map(cfg.Linter.Rules, func(v config.LinterRule, _ int) linter.Rule {
 					res := linter.Rule{
 						Path:        v.Path,
 						Allow:       v.Allow,
@@ -209,6 +177,20 @@ var (
 				return err
 			}
 
+			linterPreset, err := cmd.Flags().GetString("linter")
+			if err != nil {
+				return err
+			}
+
+			switch linterPreset {
+			case "hex":
+				viper.SetDefault("linter.rules", config.TransformRulesToViper(config.LinterPresetHex()))
+			case "hexlite":
+				viper.SetDefault("linter.rules", config.TransformRulesToViper(config.LinterPresetHexLite()))
+			case "clean":
+				viper.SetDefault("linter.rules", config.TransformRulesToViper(config.LinterPresetClean()))
+			}
+
 			return viper.WriteConfigAs(configPath)
 		},
 	}
@@ -232,6 +214,7 @@ func init() {
 	generateCmd.Flags().StringP("out", "o", "docs/arch", "path to doc output")
 	rootCmd.AddCommand(generateCmd)
 
+	configCmd.Flags().String("linter", "", "linter preset, can be: hex, hexlite, clean")
 	rootCmd.AddCommand(configCmd)
 }
 
