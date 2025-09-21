@@ -11,6 +11,7 @@
 |    Name    |                 Path                 |
 |:----------:|:------------------------------------:|
 | goarchlint | [/cmd/goarchlint](cmd/goarchlint.md) |
+|   linter   |         [/linter](linter.md)         |
 |   model    |          [/model](model.md)          |
 |   parser   |         [/parser](parser.md)         |
 |   render   |         [/render](render.md)         |
@@ -19,17 +20,18 @@
 
 |    Name     |                    Path                    | Count |
 |:-----------:|:------------------------------------------:|:-----:|
-|     fmt     |                    fmt                     |  14   |
-|     io      |                     io                     |   9   |
+|     fmt     |                    fmt                     |  15   |
+|     io      |                     io                     |  10   |
 |     os      |                     os                     |   8   |
 |    path     |                    path                    |   8   |
-|   slices    |                   slices                   |   5   |
+|   slices    |                   slices                   |   7   |
+|   strings   |                  strings                   |   7   |
 |   errors    |                   errors                   |   4   |
-|   strings   |                  strings                   |   4   |
 |  filepath   |               path/filepath                |   3   |
 | tablewriter |     github.com/olekukonko/tablewriter      |   2   |
 |  renderer   | github.com/olekukonko/tablewriter/renderer |   2   |
 |     tw      |    github.com/olekukonko/tablewriter/tw    |   2   |
+|     lo      |            github.com/samber/lo            |   2   |
 |     fs      |                   io/fs                    |   2   |
 |    json     |               encoding/json                |   1   |
 |    cobra    |           github.com/spf13/cobra           |   1   |
@@ -38,14 +40,18 @@
 |    token    |                  go/token                  |   1   |
 |   modfile   |          golang.org/x/mod/modfile          |   1   |
 |  packages   |       golang.org/x/tools/go/packages       |   1   |
+|   regexp    |                   regexp                   |   1   |
 |    debug    |               runtime/debug                |   1   |
+|   strconv   |                  strconv                   |   1   |
 
 ## Scheme
 
 ```mermaid
 erDiagram
+    "/cmd/goarchlint" ||--|{ "/linter" : x1
     "/cmd/goarchlint" ||--|{ "/parser" : x1
     "/cmd/goarchlint" ||--|{ "/render" : x1
+    "/linter" ||--|{ "/model" : x1
     "/parser" ||--|{ "/model" : x1
     "/render" ||--|{ "/model" : x11
 ```

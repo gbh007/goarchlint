@@ -3,6 +3,8 @@ package render
 import (
 	"fmt"
 	"io"
+	"slices"
+	"strings"
 
 	"github.com/gbh007/goarchlint/model"
 )
@@ -13,10 +15,20 @@ func (r Render) renderMermaidScheme(w io.Writer, pkgInfos []model.Package) error
 		return fmt.Errorf("write header: %w", err)
 	}
 
+	pkgInfos = slices.Clone(pkgInfos)
+	slices.SortStableFunc(pkgInfos, func(a, b model.Package) int {
+		return strings.Compare(a.RelativePath, b.RelativePath)
+	})
+
 	for _, pkg := range pkgInfos {
 		if r.OnlyInner && !pkg.Inner {
 			continue
 		}
+
+		pkg.Imports = slices.Clone(pkg.Imports)
+		slices.SortStableFunc(pkg.Imports, func(a, b model.Import) int {
+			return strings.Compare(a.RelativePath, b.RelativePath)
+		})
 
 		for _, imp := range pkg.Imports {
 			if r.OnlyInner && !imp.Inner {

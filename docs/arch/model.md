@@ -10,6 +10,7 @@
 
 |  Name  |         Path         |
 |:------:|:--------------------:|
+| linter | [/linter](linter.md) |
 | parser | [/parser](parser.md) |
 | render | [/render](render.md) |
 
@@ -17,6 +18,7 @@
 
 ```mermaid
 erDiagram
+    "/linter" ||--|{ "/model" : x1
     "/parser" ||--|{ "/model" : x1
     "/render" ||--|{ "/model" : x11
 ```

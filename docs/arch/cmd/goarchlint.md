@@ -6,8 +6,10 @@
 |:------:|:-----------------------:|:-----:|:-----:|
 | errors |         errors          |  ❌   |   1   |
 |  fmt   |           fmt           |  ❌   |   1   |
+| linter | [/linter](../linter.md) |  ✅   |   1   |
 | parser | [/parser](../parser.md) |  ✅   |   1   |
 | render | [/render](../render.md) |  ✅   |   1   |
+|   lo   |  github.com/samber/lo   |  ❌   |   1   |
 | cobra  | github.com/spf13/cobra  |  ❌   |   1   |
 | viper  | github.com/spf13/viper  |  ❌   |   1   |
 |   os   |           os            |  ❌   |   1   |
@@ -17,6 +19,7 @@
 
 ```mermaid
 erDiagram
+    "/cmd/goarchlint" ||--|{ "/linter" : x1
     "/cmd/goarchlint" ||--|{ "/parser" : x1
     "/cmd/goarchlint" ||--|{ "/render" : x1
 ```

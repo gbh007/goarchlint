@@ -9,9 +9,9 @@
 |     io      |                     io                     |  ❌   |   8   |
 |    path     |                    path                    |  ❌   |   7   |
 |     os      |                     os                     |  ❌   |   6   |
+|   slices    |                   slices                   |  ❌   |   5   |
+|   strings   |                  strings                   |  ❌   |   5   |
 |   errors    |                   errors                   |  ❌   |   3   |
-|   slices    |                   slices                   |  ❌   |   3   |
-|   strings   |                  strings                   |  ❌   |   3   |
 | tablewriter |     github.com/olekukonko/tablewriter      |  ❌   |   2   |
 |  renderer   | github.com/olekukonko/tablewriter/renderer |  ❌   |   2   |
 |     tw      |    github.com/olekukonko/tablewriter/tw    |  ❌   |   2   |

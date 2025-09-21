@@ -4,9 +4,13 @@ ifeq ($(shell go env GOBIN),)
 CMD := $(shell go env GOPATH)/bin/goarchlint
 endif
 
-.PHONY: docself
-docself:
+.PHONY: selfdoc
+selfdoc:
 	go run cmd/goarchlint/main.go generate
+
+.PHONY: selflint
+selflint:
+	go run cmd/goarchlint/main.go run
 
 .PHONY: install
 install:

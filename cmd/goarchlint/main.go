@@ -6,8 +6,10 @@ import (
 	"os"
 	"runtime/debug"
 
+	"github.com/gbh007/goarchlint/linter"
 	"github.com/gbh007/goarchlint/parser"
 	"github.com/gbh007/goarchlint/render"
+	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -21,6 +23,18 @@ type Config struct {
 		SchemeFile       string `mapstructure:"scheme_file"`
 		Clean            bool
 	}
+	Linter struct {
+		Rules []LinterRule
+	}
+}
+
+type LinterRule struct {
+	Path        string
+	Allow       []string
+	Deny        []string
+	Type        string
+	OnlyInner   bool `mapstructure:"only_inner"`
+	Description string
 }
 
 func getVersion() string {
@@ -109,10 +123,81 @@ var (
 		},
 	}
 	runCmd = &cobra.Command{
-		Use:   "run",
-		Short: "run lint",
+		Use:     "run",
+		Aliases: []string{"lint"},
+		Short:   "run lint",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return errors.New("unimplemented yet")
+			projectPath, err := cmd.Flags().GetString("path")
+			if err != nil {
+				return err
+			}
+
+			configPath, err := cmd.Flags().GetString("config")
+			if err != nil {
+				return err
+			}
+
+			silentLax, err := cmd.Flags().GetBool("silent-lax")
+			if err != nil {
+				return err
+			}
+
+			viper.SetConfigFile(configPath)
+
+			err = viper.ReadInConfig()
+			if err != nil {
+				return fmt.Errorf("read config: %w", err)
+			}
+
+			cfg := Config{}
+
+			err = viper.Unmarshal(&cfg)
+			if err != nil {
+				return fmt.Errorf("unmarshal config: %w", err)
+			}
+
+			pkgInfos, _, err := parser.Parse(projectPath)
+			if err != nil {
+				return fmt.Errorf("parse: %w", err)
+			}
+
+			result, err := linter.Validate(
+				os.Stdout,
+				pkgInfos,
+				lo.Map(cfg.Linter.Rules, func(v LinterRule, _ int) linter.Rule {
+					res := linter.Rule{
+						Path:        v.Path,
+						Allow:       v.Allow,
+						Deny:        v.Deny,
+						OnlyInner:   v.OnlyInner,
+						Description: v.Description,
+					}
+
+					switch v.Type {
+					case "strict":
+						res.Type = linter.RuleTypeStrict
+					case "lax":
+						res.Type = linter.RuleTypeLax
+					}
+
+					return res
+				}),
+				silentLax,
+			)
+			if err != nil {
+				return fmt.Errorf("validate: %w", err)
+			}
+
+			_, err = fmt.Fprintf(os.Stdout, "Violations:\n\tstrict: %d\n\tlax: %d\n", result.Strict, result.Lax)
+			if err != nil {
+				return fmt.Errorf("write result: %w", err)
+			}
+
+			if result.Strict > 0 {
+				return errors.New("has strict violation")
+			}
+
+			return nil
 		},
 	}
 	configCmd = &cobra.Command{
@@ -140,6 +225,7 @@ func init() {
 	rootCmd.PersistentFlags().StringP("config", "c", "goarchlint.toml", "path to config")
 	rootCmd.PersistentFlags().StringP("path", "p", ".", "path to project")
 
+	runCmd.Flags().Bool("silent-lax", false, "don't show lax violation")
 	rootCmd.AddCommand(runCmd)
 
 	generateCmd.Flags().Bool("dump-json", false, "Dump json")
