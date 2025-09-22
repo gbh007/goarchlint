@@ -123,8 +123,8 @@ func Parse(projectPath string) ([]model.Package, string, error) {
 			}
 
 			if pkgInfo.Inner {
-				pkgInfo.RelativePath = strings.ReplaceAll(pkgPath, pPath, coreModulePath)
-				pkgInfo.InnerPath = strings.ReplaceAll(pkgPath, pPath, "")
+				pkgInfo.RelativePath = strings.Replace(pkgPath, pPath, coreModulePath, 1)
+				pkgInfo.InnerPath = strings.Replace(pkgPath, pPath, "", 1)
 
 				if pkgInfo.InnerPath == "" {
 					pkgInfo.InnerPath = "/"
@@ -159,7 +159,7 @@ func Parse(projectPath string) ([]model.Package, string, error) {
 				}
 
 				if importInfo.Inner {
-					importInfo.InnerPath = strings.ReplaceAll(importInfo.RelativePath, coreModulePath, "")
+					importInfo.InnerPath = strings.Replace(importInfo.RelativePath, coreModulePath, "", 1)
 
 					if importInfo.InnerPath == "" {
 						importInfo.InnerPath = "/"
