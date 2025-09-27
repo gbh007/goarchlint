@@ -11,6 +11,7 @@
 |    Name    |                 Path                 |
 |:----------:|:------------------------------------:|
 | goarchlint | [/cmd/goarchlint](cmd/goarchlint.md) |
+|   config   |         [/config](config.md)         |
 |   linter   |         [/linter](linter.md)         |
 |   model    |          [/model](model.md)          |
 |   parser   |         [/parser](parser.md)         |
@@ -26,12 +27,12 @@
 |    path     |                    path                    |   8   |
 |   slices    |                   slices                   |   7   |
 |   strings   |                  strings                   |   7   |
-|   errors    |                   errors                   |   4   |
+|   errors    |                   errors                   |   3   |
+|     lo      |            github.com/samber/lo            |   3   |
 |  filepath   |               path/filepath                |   3   |
 | tablewriter |     github.com/olekukonko/tablewriter      |   2   |
 |  renderer   | github.com/olekukonko/tablewriter/renderer |   2   |
 |     tw      |    github.com/olekukonko/tablewriter/tw    |   2   |
-|     lo      |            github.com/samber/lo            |   2   |
 |     fs      |                   io/fs                    |   2   |
 |    json     |               encoding/json                |   1   |
 |    cobra    |           github.com/spf13/cobra           |   1   |
@@ -48,6 +49,7 @@
 
 ```mermaid
 erDiagram
+    "/cmd/goarchlint" ||--|{ "/config" : x1
     "/cmd/goarchlint" ||--|{ "/linter" : x1
     "/cmd/goarchlint" ||--|{ "/parser" : x1
     "/cmd/goarchlint" ||--|{ "/render" : x1

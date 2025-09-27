@@ -1,5 +1,6 @@
 @startuml "goarchlint"
 skinparam componentStyle rectangle
+[/cmd/goarchlint] --> [/config]
 [/cmd/goarchlint] --> [/linter]
 [/cmd/goarchlint] --> [/parser]
 [/cmd/goarchlint] --> [/render]

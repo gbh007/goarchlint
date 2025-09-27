@@ -11,7 +11,7 @@
 |     os      |                     os                     |  ❌   |   6   |
 |   slices    |                   slices                   |  ❌   |   5   |
 |   strings   |                  strings                   |  ❌   |   5   |
-|   errors    |                   errors                   |  ❌   |   3   |
+|   errors    |                   errors                   |  ❌   |   2   |
 | tablewriter |     github.com/olekukonko/tablewriter      |  ❌   |   2   |
 |  renderer   | github.com/olekukonko/tablewriter/renderer |  ❌   |   2   |
 |     tw      |    github.com/olekukonko/tablewriter/tw    |  ❌   |   2   |

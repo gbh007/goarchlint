@@ -1,7 +1,6 @@
 package render
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -22,7 +21,7 @@ func (r Render) RenderSchemeDoc(pkgs []model.Package) error {
 	case FormatPlantUML:
 		filename = "scheme.puml"
 	default:
-		return errors.New("unsupported format")
+		return nil
 	}
 
 	f, err := os.Create(path.Join(r.BasePath, filename))

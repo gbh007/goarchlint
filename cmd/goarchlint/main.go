@@ -49,7 +49,7 @@ var (
 			viper.SetConfigFile(configPath)
 
 			err = viper.ReadInConfig()
-			if err != nil {
+			if err != nil && !errors.Is(err, os.ErrNotExist) {
 				return fmt.Errorf("read config: %w", err)
 			}
 
@@ -110,10 +110,15 @@ var (
 				return err
 			}
 
+			err = setLinterRulesFromPreset(cmd)
+			if err != nil {
+				return err
+			}
+
 			viper.SetConfigFile(configPath)
 
 			err = viper.ReadInConfig()
-			if err != nil {
+			if err != nil && !errors.Is(err, os.ErrNotExist) {
 				return fmt.Errorf("read config: %w", err)
 			}
 
@@ -177,24 +182,33 @@ var (
 				return err
 			}
 
-			linterPreset, err := cmd.Flags().GetString("linter")
+			err = setLinterRulesFromPreset(cmd)
 			if err != nil {
 				return err
-			}
-
-			switch linterPreset {
-			case "hex":
-				viper.SetDefault("linter.rules", config.TransformRulesToViper(config.LinterPresetHex()))
-			case "hexlite":
-				viper.SetDefault("linter.rules", config.TransformRulesToViper(config.LinterPresetHexLite()))
-			case "clean":
-				viper.SetDefault("linter.rules", config.TransformRulesToViper(config.LinterPresetClean()))
 			}
 
 			return viper.WriteConfigAs(configPath)
 		},
 	}
 )
+
+func setLinterRulesFromPreset(cmd *cobra.Command) error {
+	linterPreset, err := cmd.Flags().GetString("linter")
+	if err != nil {
+		return err
+	}
+
+	switch linterPreset {
+	case "hex":
+		viper.SetDefault("linter.rules", config.TransformRulesToViper(config.LinterPresetHex()))
+	case "hexlite":
+		viper.SetDefault("linter.rules", config.TransformRulesToViper(config.LinterPresetHexLite()))
+	case "clean":
+		viper.SetDefault("linter.rules", config.TransformRulesToViper(config.LinterPresetClean()))
+	}
+
+	return nil
+}
 
 func init() {
 	viper.SetDefault("generator.out", "docs/arch")
@@ -206,15 +220,29 @@ func init() {
 
 	rootCmd.PersistentFlags().StringP("config", "c", "goarchlint.toml", "path to config")
 	rootCmd.PersistentFlags().StringP("path", "p", ".", "path to project")
+	rootCmd.PersistentFlags().String("linter", "", "linter preset, can be: hex, hexlite, clean")
 
 	runCmd.Flags().Bool("silent-lax", false, "don't show lax violation")
 	rootCmd.AddCommand(runCmd)
 
 	generateCmd.Flags().Bool("dump-json", false, "Dump json")
 	generateCmd.Flags().StringP("out", "o", "docs/arch", "path to doc output")
+
+	generateCmd.Flags().Bool("generator.only_inner", true, "show on scheme only inner packages")
+	generateCmd.Flags().Bool("generator.prefer_inner_names", true, "prefer to display inner names")
+	generateCmd.Flags().String("generator.format", "mermaid", "format scheme in md")
+	generateCmd.Flags().String("generator.scheme_file", "plantuml", "format general scheme")
+	generateCmd.Flags().Bool("generator.clean", false, "clean all files in target directory")
+
+	_ = viper.BindPFlag("generator.out", generateCmd.Flag("out"))
+	_ = viper.BindPFlag("generator.only_inner", generateCmd.Flag("generator.only_inner"))
+	_ = viper.BindPFlag("generator.prefer_inner_names", generateCmd.Flag("generator.prefer_inner_names"))
+	_ = viper.BindPFlag("generator.format", generateCmd.Flag("generator.format"))
+	_ = viper.BindPFlag("generator.scheme_file", generateCmd.Flag("generator.scheme_file"))
+	_ = viper.BindPFlag("generator.clean", generateCmd.Flag("generator.clean"))
+
 	rootCmd.AddCommand(generateCmd)
 
-	configCmd.Flags().String("linter", "", "linter preset, can be: hex, hexlite, clean")
 	rootCmd.AddCommand(configCmd)
 }
 
